@@ -94,6 +94,7 @@ examples/practica/             synthetic dataset and answer key
 datasets/generate_synthetic.py regenerates examples/practica
 scripts/                       shared code blocks and repo tooling
 tests/                         unittest suite (python3 -m unittest)
+facts.json                     public facts (install, counts, network) for other sites; checked by tests
 ```
 
 ## Contributing

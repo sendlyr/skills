@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "about": "Public facts about this repo, for other sites to copy (e.g. sendlyr.com) instead of hard-coding them. tests/test_facts.py fails if any of these drift from the repo.",
+  "name": "sendlyr",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": "https://github.com/sendlyr/skills",
+  "homepage": "https://sendlyr.com",
+  "install": {
+    "claude_code": [
+      "/plugin marketplace add sendlyr/skills",
+      "/plugin install sendlyr@sendlyr"
+    ],
+    "agent_skills_cli": "npx skills add sendlyr/skills",
+    "manual": "Copy any folder under skills/ into your agent's skills directory (e.g. .claude/skills/ or .agents/skills/)."
+  },
+  "runtime": {
+    "python": "3.11+",
+    "third_party_packages": 0
+  },
+  "network": {
+    "scripts_open_network_connections": false,
+    "scripts_take_credentials": false,
+    "statement": "The scripts read local CSV and TOML files and write aggregate reports. They import no networking modules and take no credentials."
+  },
+  "counts": {
+    "skills": 6,
+    "scripts": 6,
+    "tests": 142
+  },
+  "ci": {
+    "python_versions": ["3.11", "3.13"]
+  },
+  "skills": [
+    {"name": "designing-holdout-experiments", "script": "holdout.py"},
+    {"name": "designing-lifecycle-states", "script": "state_audit.py"},
+    {"name": "designing-state-journeys", "script": "audit_sends.py"},
+    {"name": "finding-leading-indicators", "script": "score_signals.py"},
+    {"name": "grounding-lifecycle-emails", "script": "claim_check.py"},
+    {"name": "writing-decision-readouts", "script": "readout.py"}
+  ],
+  "example_dataset": {
+    "name": "Practica",
+    "synthetic": true,
+    "path": "examples/practica"
+  }
+}
