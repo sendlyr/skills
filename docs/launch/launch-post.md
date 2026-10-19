@@ -52,6 +52,8 @@ Every figure below comes from [`docs/lessons.md`](../lessons.md) or [`docs/case-
 - LinkedIn cuts the post after about two lines, behind "…see more". The first two lines are the hook. Keep them.
 - LinkedIn often shows posts with links to fewer people. One option: replace the link line with "Link in the first comment", and post `https://github.com/sendlyr/skills` as the first comment.
 - Tag eReflect's company page only if they agree.
+- This essay is the centrepiece of the launch. After LinkedIn and X, share it in creator communities you already take part in. Post once in each, with the story first and the link second. Show HN is optional; don't build the launch around it.
+- The post has no install commands on purpose. Install commands appear only where they have been tested (checklist steps 2 and 9).
 
 ---
 

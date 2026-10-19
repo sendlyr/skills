@@ -9,7 +9,7 @@ Most of these lists turn away brand-new repositories. This repo's first commit w
 | [ComposioHQ/awesome-claude-skills](https://github.com/ComposioHQ/awesome-claude-skills) | 77k | 2026-05-22 | No age or star rule. Over 1,000 open PRs, so merging is slow. | Launch day |
 | [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) | 56k | 2026-10-19 | 14 days old with commits after day one, **or** 100 stars. Web form only, filled in by a person. | 2026-11-03 |
 | [heilcheng/awesome-agent-skills](https://github.com/heilcheng/awesome-agent-skills) | 6.3k | 2026-10-15 (weekly batches) | Older than 14 days **and** at least 20 stars. Otherwise the PR is put "on hold". | 2026-11-03, once at 20 stars |
-| [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) | 36k | 2026-10-19 | "Brand new skills that were just created are not accepted." No number is given. | After real use, for example installs on skills.sh and issues from users |
+| [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) | 36k | 2026-10-19 | "Brand new skills that were just created are not accepted." No number is given. | After real use: stars, forks, and issues or PRs from people outside Sendlyr |
 
 Two more places list repos automatically, with nothing to submit:
 
@@ -151,7 +151,7 @@ Adds sendlyr/skills to Community Skills > Marketing.
 
 Six MIT agent skills for lifecycle email measurement: finding the early behaviour that predicts conversion, designing user states and send rules, checking AI-written emails for false claims, and reading out holdout experiments. Each has a standard-library Python script, tested against a synthetic dataset with an answer key.
 
-Usage: <add the skills.sh install count and any user issues or PRs here before submitting>
+Usage: <stars, forks, and links to issues or PRs from outside users>
 ```
 
-Don't submit this until you can fill in the usage line honestly.
+Don't submit this until you can fill in the usage line honestly. Leave out skills.sh install counts: they can be inflated, and our own test installs count too.

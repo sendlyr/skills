@@ -8,6 +8,8 @@ How to list this repo in [Anthropic's directory](https://claude.ai/directory). A
 
 The older Console form (`clau.de/plugin-directory-submission`) now redirects to these pages. It is no longer supported.
 
+**Submit early.** A person at Anthropic reviews every new listing, and the review time isn't fixed. The repo is already public, so the submission doesn't have to wait for the release tag. The [checklist](checklist.md) puts it before launch day.
+
 ## Who can submit
 
 - A claude.ai account on **Pro, Max, Team or Enterprise**. Free accounts can't submit. On Team or Enterprise, only an **Owner** can submit, or a member an Owner gave the **Directory** permission.
@@ -89,3 +91,10 @@ The founder must answer these. The text above lists facts, not legal advice.
 - Once the listing is live, raise `version` in `plugin.json` with every release.
 - To stop it: **Withdraw submission** before it's published, or **Delist plugin** after.
 - Stuck? Email `directory@anthropic.com`.
+
+## Later changes that affect the listing
+
+- **An MCP server or any package launcher** (`npx`, `uvx`, `bunx`, `pnpm dlx`, `pipx run`, `uv run`): pin every package to an exact version, for example `npx <package>@1.2.3` or `uvx <package>==1.2.3`. Unpinned launchers block. Pinned ones are still held for a reviewer. A remote MCP server should also be submitted on its own, as an **MCP connector**.
+- **Hooks:** any `UserPromptSubmit`, `PreToolUse` or `PostToolUse` hook must be limited to projects that are relevant to the plugin. Any network call must be disclosed in the README, with a way to opt out.
+- **Network calls in scripts:** describe them in the README. Today there are none, and the README says so.
+- **Every release:** raise `version` in `plugin.json`, and tag the same version (`v0.2.0` ↔ `"version": "0.2.0"`).

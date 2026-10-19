@@ -38,3 +38,7 @@ Put it directly under the title, in a one-line PR, once the badge is ready:
 ```
 
 The README is unchanged in this PR on purpose. Adding the line now would show a red "resource not found" badge on launch day.
+
+## What the number means
+
+The badge shows an install count. That count can be inflated: our own smoke-test installs count too. Don't quote it as proof of traction, in posts or in awesome-list PRs. Use stars, forks, GitHub traffic and issues from outside users instead (checklist step 16).
