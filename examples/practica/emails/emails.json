@@ -1,0 +1,195 @@
+{
+  "emails": [
+    {
+      "id": "e01_clean_no_goal",
+      "state": "NO_GOAL",
+      "facts": {
+        "first_name": "Ana",
+        "goal_set": 0,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "One choice to make your trial count",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Ana,",
+        "body": [
+          "Practica works best when it knows what you're learning for.",
+          "Pick a goal and we'll shape your first lesson around it."
+        ],
+        "cta_label": "Pick your goal",
+        "cta_url": "https://app.practica.example/goal",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e02_clean_fallback_greeting",
+      "state": "GOAL_SET_NO_LESSON",
+      "facts": {
+        "first_name": "",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Your first lesson is ready",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi there,",
+        "body": [
+          "Your goal is set. The first lesson takes about five minutes.",
+          "Start it now while it's fresh."
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e03_false_completion",
+      "state": "GOAL_SET_NO_LESSON",
+      "facts": {
+        "first_name": "Ben",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Nice work, Ben",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Ben,",
+        "body": [
+          "You completed your first lesson. Great progress!"
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e04_cta_not_allowed",
+      "state": "NO_GOAL",
+      "facts": {
+        "first_name": "Chloe",
+        "goal_set": 0,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Let's get you started",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Chloe,",
+        "body": [
+          "Pick what you want to learn."
+        ],
+        "cta_label": "Explore plans",
+        "cta_url": "https://practica.example/pricing",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e05_unsupported_claims",
+      "state": "NO_GOAL",
+      "facts": {
+        "first_name": "Dev",
+        "goal_set": 0,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Fluent in 7 days, guaranteed",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Dev,",
+        "body": [
+          "Practica gets you fluent in 7 days. Results guaranteed."
+        ],
+        "cta_label": "Pick your goal",
+        "cta_url": "https://app.practica.example/goal",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e06_exact_metric",
+      "state": "GOAL_SET_NO_LESSON",
+      "facts": {
+        "first_name": "Eli",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "You're close",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Eli,",
+        "body": [
+          "You spent 23 minutes exploring yesterday. Your first lesson is next."
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e07_unverified_greeting",
+      "state": "NO_GOAL",
+      "facts": {
+        "first_name": "",
+        "goal_set": 0,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Pick your goal",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi fkim88,",
+        "body": [
+          "Practica works best with a goal."
+        ],
+        "cta_label": "Pick your goal",
+        "cta_url": "https://app.practica.example/goal",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "e08_internal_name_no_unsubscribe",
+      "state": "NO_GOAL",
+      "facts": {
+        "first_name": "Gia",
+        "goal_set": 0,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Welcome to Practica Pro",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Gia,",
+        "body": [
+          "Practica Pro is ready for you."
+        ],
+        "cta_label": "Pick your goal",
+        "cta_url": "https://app.practica.example/goal",
+        "footer": "Thanks for trying Practica."
+      }
+    },
+    {
+      "id": "e09_urgency_warning",
+      "state": "GOAL_SET_NO_LESSON",
+      "facts": {
+        "first_name": "Hal",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Last chance to start strong",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Hal,",
+        "body": [
+          "Your goal is set. Don't lose your progress: start your first lesson."
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+[policy]
+max_sends_per_user = 3
+min_hours_between_sends = 24
+first_contact_sla_hours = 48
+treatment_reach_min = 0.90
+control_contact_allowed = false
+
+[states]
+success = ["ACTIVE"]
+no_send = ["ACTIVE", "EXCLUDED", "UNOBSERVABLE"]

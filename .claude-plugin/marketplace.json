@@ -1,0 +1,17 @@
+{
+  "name": "sendlyr",
+  "owner": {
+    "name": "Sendlyr",
+    "url": "https://sendlyr.com"
+  },
+  "metadata": {
+    "description": "Sendlyr's open-source lifecycle measurement skills."
+  },
+  "plugins": [
+    {
+      "name": "sendlyr",
+      "source": "./",
+      "description": "Find leading indicators, design lifecycle states and journeys, ground AI emails, and run honest holdout experiments."
+    }
+  ]
+}

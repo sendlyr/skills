@@ -1,0 +1,41 @@
+# prereg.toml: pre-registration for one experiment cycle.
+# Fill in every REPLACE, then seal it BEFORE the first counted assignment:
+#   python3 scripts/holdout.py seal prereg.toml
+# After sealing, any edit is drift: the readout refuses to classify the effect.
+
+[experiment]
+name = "REPLACE-product-program-2026q3"
+hypothesis = "REPLACE: what the treatment does to the primary outcome."
+mechanism = "REPLACE: the behaviour change that should cause it (usually the leading indicator)."
+unit = "user"                         # the randomised unit
+allocation_treatment = 0.5            # fixed for the whole cycle
+salt = "REPLACE-unique-salt"          # used by holdout.py assign; never reuse across experiments
+cohort_start = "2026-07-01"           # first counted assignment (after the shakedown week)
+cohort_end = "2026-08-15"             # last counted assignment
+analysis_not_before = "2026-09-05"    # cohort_end + outcome window + ingestion grace
+
+[primary]
+metric = "REPLACE_converted"          # column name in outcomes.csv
+baseline_rate = 0.25                  # in the eligible population, before the experiment
+minimum_worthwhile_effect = 0.02      # absolute; the smallest lift worth running the program for
+direction = "increase"                # or "decrease" (e.g. churn)
+confidence_level = 0.95
+
+[mechanism]                           # optional but recommended
+metric = "REPLACE_indicator_hit"      # e.g. the leading indicator, as a 1/0 column
+
+[gates]
+treatment_reach_min = 0.90            # eligible treatment users contacted (or correctly not needed) within the SLA
+first_contact_sla_hours = 48
+max_missing_outcome_share = 0.05
+srm_p_min = 0.001                     # sample ratio mismatch threshold
+control_contact_allowed = false
+
+[policy]
+# Pin the exact treatment and control. Paste file hashes, e.g. `shasum -a 256 states.toml`.
+treatment = "REPLACE: states.toml sha256 …; contact-policy.toml sha256 …; templates v…"
+control = "REPLACE: e.g. existing day-based welcome drip, unchanged; delivery attested weekly"
+population = "REPLACE: eligibility rules knowable at assignment (no post-assignment filters)"
+missing_outcome_rule = "Blank outcomes are reported as missing, never as negative."
+strata = ""                           # e.g. "billing_cadence: monthly, yearly"
+secondary = ""                        # named secondary hypotheses; cannot rewrite the primary verdict

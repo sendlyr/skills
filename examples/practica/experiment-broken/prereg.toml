@@ -1,0 +1,31 @@
+[experiment]
+name = "practica-trial-activation-2026q2"
+hypothesis = "Routing day-0 to day-6 emails by activation state raises 14-day paid conversion."
+mechanism = "More trial users set a goal and finish a first lesson within 3 days."
+unit = "user"
+allocation_treatment = 0.5
+salt = "practica-2026q2"
+cohort_start = "2026-05-11"
+cohort_end = "2026-06-21"
+analysis_not_before = "2026-07-06"
+
+[primary]
+metric = "converted"
+baseline_rate = 0.23
+minimum_worthwhile_effect = 0.03
+direction = "increase"
+confidence_level = 0.95
+
+[mechanism]
+metric = "lesson_done_3d"
+
+[gates]
+treatment_reach_min = 0.90
+first_contact_sla_hours = 48
+max_missing_outcome_share = 0.05
+srm_p_min = 0.001
+control_contact_allowed = false
+
+[policy]
+treatment = "state-routed emails per states/states.toml and contact-policy.toml"
+control = "existing day-based welcome drip (unchanged)"

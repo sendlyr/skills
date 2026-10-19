@@ -1,0 +1,39 @@
+# A small, honest state model for Practica's 7-day trial.
+# One state = one ask by the person who reads the email. Success does not send.
+
+[model]
+name = "practica_trial_activation_v2"
+email_actor = "learner"
+decision_window_days = 7
+
+[unobservable]
+required_fields = ["goal_set", "lessons_completed"]
+
+[[exclusions]]
+name = "EXCLUDED"
+when = "is_test == 1 or cancelled == 1"
+reason = "test_or_cancelled"
+
+[[states]]
+name = "ACTIVE"
+when = "lessons_completed >= 1"
+success = true
+send = false
+ask = ""
+
+[[states]]
+name = "GOAL_SET_NO_LESSON"
+when = "goal_set == 1 and lessons_completed == 0"
+send = true
+ask = "Finish your first 5-minute lesson"
+actor = "learner"
+
+[[states]]
+name = "NO_GOAL"
+when = "goal_set == 0"
+send = true
+ask = "Pick your learning goal"
+actor = "learner"
+
+[fallback]
+name = "UNCLASSIFIED"

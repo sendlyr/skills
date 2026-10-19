@@ -1,0 +1,62 @@
+{
+  "template": {
+    "state": "GOAL_SET_NO_LESSON",
+    "email": {
+      "subject": "Your first lesson is ready, {{ first_name }}",
+      "preheader": "",
+      "headline": "",
+      "intro": "Hi {{ first_name }},",
+      "body": [
+        "Ivy and other learners finish lesson one in their first day.",
+        "You're on a {{ streak_days }}-day streak. Keep it going."
+      ],
+      "cta_label": "Start your first lesson",
+      "cta_url": "{{ cta_url }}",
+      "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+    }
+  },
+  "renders": [
+    {
+      "id": "r1",
+      "facts": {
+        "first_name": "Ivy",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Your first lesson is ready, Ivy",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Ivy,",
+        "body": [
+          "Ivy and other learners finish lesson one in their first day.",
+          "You're on a 0-day streak. Keep it going."
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    },
+    {
+      "id": "r2",
+      "facts": {
+        "first_name": "Jon",
+        "goal_set": 1,
+        "lessons_completed": 0
+      },
+      "email": {
+        "subject": "Your first lesson is ready, Jon",
+        "preheader": "",
+        "headline": "",
+        "intro": "Hi Jon,",
+        "body": [
+          "Ivy and other learners finish lesson one in their first day.",
+          "You're on a 0-day streak. Keep it going."
+        ],
+        "cta_label": "Start your first lesson",
+        "cta_url": "https://app.practica.example/lesson/first",
+        "footer": "You're receiving this because you started a Practica trial. Unsubscribe: {{ unsubscribe_url }}"
+      }
+    }
+  ]
+}

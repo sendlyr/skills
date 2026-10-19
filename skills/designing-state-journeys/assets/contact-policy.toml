@@ -1,0 +1,28 @@
+# contact-policy.toml: how often, when, and when to stop.
+# Format: docs/data-contracts.md. Audit real sends with scripts/audit_sends.py.
+# Every limit here must be ENFORCED INSIDE THE SEND, from the send log, not just written down.
+
+[policy]
+max_sends_per_user = 3            # successful sends per user for this program
+min_hours_between_sends = 24      # checked against the last *successful* send
+first_contact_sla_hours = 48      # a newly eligible user must be reached (or correctly skipped) by then
+treatment_reach_min = 0.90        # below this, the experiment can't be read
+control_contact_allowed = false   # control users must never receive treatment messages
+# send_window = "08:00-20:00"     # local time; document the timezone source
+# timezone = "Australia/Sydney"
+
+[states]
+success = ["ACTIVE"]                                 # indicator reached: stop the sequence
+no_send = ["ACTIVE", "EXCLUDED", "UNOBSERVABLE"]     # never message these
+
+[termination]
+# Mutually exclusive, decided before launch, recorded per user.
+reasons = ["converted", "success_reached", "budget_complete", "over_cap", "stopped_early", "never_contacted"]
+
+# Per-state notes (documentation; enforce in your platform):
+# [[state_policy]]
+# state = "NO_GOAL"
+# ask = "Pick your learning goal"
+# cta = "pick_goal"
+# first_send_after_hours = 2
+# max_sends = 2

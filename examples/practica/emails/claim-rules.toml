@@ -1,0 +1,61 @@
+[product]
+name = "Practica"
+forbidden_names = ["Practica Pro", "PRX"]
+
+[[cta]]
+key = "pick_goal"
+label = "Pick your goal"
+url = "https://app.practica.example/goal"
+
+[[cta]]
+key = "first_lesson"
+label = "Start your first lesson"
+url = "https://app.practica.example/lesson/first"
+
+[[prohibited]]
+phrases = ["guaranteed", "fluent in 7 days", "100% free forever"]
+level = "blocker"
+reason = "unsupported outcome claim"
+
+[[prohibited]]
+phrases = ["last chance", "act now", "lose your progress"]
+level = "warning"
+reason = "urgency or loss pressure"
+
+[[prohibited]]
+phrases = ["upgrade now", "buy now", "checkout"]
+level = "blocker"
+reason = "purchase pressure: the trial converts automatically"
+
+[[patterns]]
+regex = "\\b\\d+\\s*(seconds|minutes|mins)\\b"
+level = "blocker"
+reason = "exact usage metric in copy"
+
+[[patterns]]
+regex = "\\bday\\s+\\d+\\b"
+level = "warning"
+reason = "exact trial day in copy"
+
+[[fact_rules]]
+when = "lessons_completed == 0"
+forbid = ["you completed", "you finished", "your first lesson is done", "great progress"]
+level = "blocker"
+reason = "claims progress without evidence"
+
+[[fact_rules]]
+when = "goal_set == 0"
+forbid = ["your goal is set", "the goal you set", "your goal of"]
+level = "blocker"
+reason = "assumes a goal that does not exist"
+
+[greeting]
+verified_name_field = "first_name"
+fallback = "Hi there,"
+
+[required]
+footer = true
+unsubscribe_token = "{{ unsubscribe_url }}"
+
+[template]
+allowed_placeholders = ["first_name", "lessons_completed", "cta_url", "unsubscribe_url"]

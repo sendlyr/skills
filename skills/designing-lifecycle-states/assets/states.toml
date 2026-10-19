@@ -1,0 +1,49 @@
+# states.toml: a lifecycle state model
+# Format: docs/data-contracts.md ("states.toml"). Audit it with scripts/state_audit.py.
+#
+# Rules of thumb:
+# - Order is the priority: UNOBSERVABLE -> exclusions -> states (first match wins) -> fallback.
+# - Put the success state (the leading indicator reached) FIRST among states, with send = false.
+# - One sending state = one ask, performed by the person who reads the email (model.email_actor).
+# - Keep reasons (login status, depth, history) as facts, not as extra states.
+
+[model]
+name = "REPLACE_trial_activation_v1"
+email_actor = "REPLACE_user"            # who reads the email: user, parent, admin...
+decision_window_days = 7                # e.g. trial length
+
+[unobservable]
+# If any of these facts is blank, the user is UNOBSERVABLE: alert, never guess.
+required_fields = ["REPLACE_setup_done", "REPLACE_key_actions"]
+
+[[exclusions]]
+name = "EXCLUDED"
+when = "is_test == 1 or cancelled == 1"
+reason = "test_or_cancelled"
+
+# 1. Success: the leading indicator is reached. Stop the activation sequence.
+[[states]]
+name = "ACTIVE"
+when = "REPLACE_key_actions >= 1"
+success = true
+send = false
+ask = ""
+
+# 2. One step away: the setup is done but the key action isn't.
+[[states]]
+name = "SETUP_DONE_NO_ACTION"
+when = "REPLACE_setup_done == 1 and REPLACE_key_actions == 0"
+send = true
+ask = "REPLACE: the single next action, in the reader's words"
+actor = "REPLACE_user"
+
+# 3. Two steps away: setup not done. Often the biggest cliff.
+[[states]]
+name = "NO_SETUP"
+when = "REPLACE_setup_done == 0"
+send = true
+ask = "REPLACE: the setup action"
+actor = "REPLACE_user"
+
+[fallback]
+name = "UNCLASSIFIED"                   # should be near-empty; if not, the model has a gap

@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit and end-to-end tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Shared code blocks are in sync
+        run: python3 scripts/sync_shared_blocks.py --check
+      - name: Example data matches the generator
+        run: python3 datasets/generate_synthetic.py --out examples/practica --check
+      - name: Skills are valid
+        run: python3 scripts/validate_skills.py

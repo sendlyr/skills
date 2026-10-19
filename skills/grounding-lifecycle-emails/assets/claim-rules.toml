@@ -1,0 +1,60 @@
+# claim-rules.toml: deterministic checks run on every AI-written email before human review.
+# Format: docs/data-contracts.md. Run: python3 scripts/claim_check.py --rules claim-rules.toml --emails emails.json --out DIR
+
+[product]
+name = "REPLACE_Product"
+forbidden_names = ["REPLACE_Internal_Plan_Name"]   # internal names customers must never see
+
+# Every CTA must be one of these exact (label, url) pairs.
+[[cta]]
+key = "REPLACE_setup"
+label = "REPLACE: Finish setting up"
+url = "https://REPLACE/setup"
+
+[[cta]]
+key = "REPLACE_first_action"
+label = "REPLACE: Start your first …"
+url = "https://REPLACE/first"
+
+[[prohibited]]
+phrases = ["guaranteed", "REPLACE: unsupported outcome claims"]
+level = "blocker"
+reason = "unsupported outcome claim"
+
+[[prohibited]]
+phrases = ["upgrade now", "buy now", "checkout"]
+level = "blocker"
+reason = "purchase pressure (remove if your trial requires a manual purchase)"
+
+[[prohibited]]
+phrases = ["last chance", "act now", "lose your progress"]
+level = "warning"
+reason = "urgency or loss pressure"
+
+[[patterns]]
+regex = "\\b\\d+\\s*(seconds|minutes|mins)\\b"
+level = "blocker"
+reason = "exact usage metric in copy"
+
+[[patterns]]
+regex = "\\bday\\s+\\d+\\b"
+level = "warning"
+reason = "exact trial day in copy"
+
+# Claims that must not appear when the facts say otherwise.
+[[fact_rules]]
+when = "REPLACE_key_actions == 0"
+forbid = ["you completed", "you finished", "great progress"]
+level = "blocker"
+reason = "claims progress without evidence"
+
+[greeting]
+verified_name_field = "first_name"      # only this field may supply a name
+fallback = "Hi there,"
+
+[required]
+footer = true
+unsubscribe_token = "{{ unsubscribe_url }}"
+
+[template]
+allowed_placeholders = ["first_name", "cta_url", "unsubscribe_url"]

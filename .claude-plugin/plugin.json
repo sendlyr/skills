@@ -1,0 +1,13 @@
+{
+  "name": "sendlyr",
+  "version": "0.1.0",
+  "description": "The measurement layer under lifecycle: find the behaviour that predicts conversion, build user states around it, send one ask per state, keep AI emails true, and prove it with a sealed holdout.",
+  "author": {
+    "name": "Sendlyr",
+    "url": "https://sendlyr.com"
+  },
+  "homepage": "https://sendlyr.com",
+  "repository": "https://github.com/sendlyr/skills",
+  "license": "MIT",
+  "keywords": ["lifecycle", "activation", "onboarding", "leading-indicator", "experimentation", "holdout", "email", "growth", "analytics"]
+}

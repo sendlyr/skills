@@ -1,0 +1,52 @@
+{
+  "skill_name": "finding-leading-indicators",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's an export from our language app's 7-day trial (examples/practica/observational/accounts.csv and events.csv). Trials auto-convert at day 7; count anyone who paid within 14 days. Our emails go to the learner. What should we track as our activation signal?",
+      "expected_output": "Runs score_signals.py with a 14-day outcome window, 7-day decision window and email actor 'learner'. Recommends goal_set (threshold 1, window <= 3 days) as the primary indicator and lesson_completed as supporting, labelled predictive not causal, and suggests a holdout next.",
+      "files": [
+        "examples/practica/observational/accounts.csv",
+        "examples/practica/observational/events.csv"
+      ],
+      "assertions": [
+        "Primary indicator is goal_set with threshold 1 and a window of 3 days or less",
+        "lesson_completed is named as the supporting signal",
+        "The answer says the result is predictive or correlational, not causal",
+        "app_opened is called too broad or not recommended",
+        "streak_reminder_shown is rejected because the system, not the learner, performs it",
+        "billing_page_viewed is not recommended",
+        "It recommends testing with a holdout or names designing-holdout-experiments",
+        "No account IDs appear in the answer"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Can you check whether 'opening our emails' is a good leading indicator for paying? Data is in examples/practica/observational.",
+      "expected_output": "Scores email_opened; shows it has weak lift relative to goal_set and lesson_completed; explains it is likely confounded by motivation (motivated users open more email and also pay more) and that opens are not an action that drives value; recommends against using it.",
+      "files": [
+        "examples/practica/observational/accounts.csv",
+        "examples/practica/observational/events.csv"
+      ],
+      "assertions": [
+        "email_opened is not recommended as the primary indicator",
+        "The answer mentions confounding, motivation, or correlation not implying causation",
+        "The answer cites lift or coverage numbers from the script output"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We want to use 'completed 5 lessons in the first 14 days' as our activation metric for our 7-day trial. Thoughts? Data: examples/practica/observational.",
+      "expected_output": "Explains that a 14-day window is longer than the 7-day decision window, so the signal fires after the payment decision and cannot be acted on; the script refuses windows beyond the decision window; also notes nothing-vs-something (1 lesson separates almost as well as many).",
+      "files": [
+        "examples/practica/observational/accounts.csv",
+        "examples/practica/observational/events.csv"
+      ],
+      "assertions": [
+        "Says the 14-day window exceeds the 7-day decision window",
+        "Recommends a window inside the trial",
+        "Mentions that most of the separation is between none and one (nothing vs something) or recommends threshold 1"
+      ]
+    }
+  ]
+}

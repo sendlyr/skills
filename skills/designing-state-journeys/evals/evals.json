@@ -1,0 +1,49 @@
+{
+  "skill_name": "designing-state-journeys",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our onboarding email test showed almost no lift. Here are the assignments, send log, outcomes and our contact policy: examples/practica/experiment-broken/. Where did it go wrong?",
+      "expected_output": "Runs audit_sends.py; reports reach below the 90% gate (outage window), most sends going to users already ACTIVE (success state), cap violations (more than 3 sends), sends inside 24 hours, stale renders, and control users contacted; recommends no-send success state, send-time enforcement, re-render at send, and fixing delivery before rerunning.",
+      "files": [
+        "examples/practica/experiment-broken/contact-policy.toml",
+        "examples/practica/experiment-broken/assignments.csv",
+        "examples/practica/experiment-broken/sends.csv",
+        "examples/practica/experiment-broken/outcomes.csv"
+      ],
+      "assertions": [
+        "Reports treatment reach below 90%",
+        "Reports that a large share (40% or more) of sends went to users already in the success state",
+        "Reports cap violations and sub-24-hour spacing violations",
+        "Reports that control users received messages",
+        "Recommends enforcing caps and spacing at send time",
+        "Does not blame the copy as the main cause"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write the contact policy and send-time checklist for a state-routed onboarding program using examples/practica/states/states.toml. Max 3 emails, at least a day apart.",
+      "expected_output": "Produces contact-policy.toml (cap 3, spacing 24h, SLA, reach gate, success and no-send states) and a send-time checklist covering arm, state match, no-send, cap, spacing, window, suppression, converted, valid address, unsubscribe, approved template, personalisation, kill switch; defines termination reasons.",
+      "files": [
+        "examples/practica/states/states.toml"
+      ],
+      "assertions": [
+        "contact-policy.toml has max_sends_per_user = 3 and min_hours_between_sends = 24",
+        "ACTIVE is listed as success and no-send",
+        "The checklist re-checks state immediately before sending",
+        "Termination reasons are defined before launch"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I build this state-routed onboarding in Braze without duplicating our state logic in segment filters?",
+      "expected_output": "Recommends computing state outside Braze and syncing one attribute, triggering on state change, exit criteria on success or conversion, frequency caps verified against delivery data, a control group, and rendering facts at send via Liquid.",
+      "files": [],
+      "assertions": [
+        "Recommends computing the state outside the platform as a single attribute",
+        "Mentions exit criteria on success or conversion",
+        "Mentions verifying caps against delivery or send logs"
+      ]
+    }
+  ]
+}

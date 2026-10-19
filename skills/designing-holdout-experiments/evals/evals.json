@@ -1,0 +1,42 @@
+{
+  "skill_name": "designing-holdout-experiments",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to test state-routed onboarding emails. Baseline 14-day conversion is 23% and we'd only keep the program if it adds at least 2 points. We get ~300 eligible trials a week. How many users and how long?",
+      "expected_output": "Runs holdout.py size --baseline 0.23 --mde 0.02 --eligible-per-week 300: about 7,157 per arm, about 14,300 total, about 48 weeks; warns it is slow and suggests raising the effect target, targeting the cliff, or testing the mechanism first.",
+      "files": [],
+      "assertions": [
+        "Reports roughly 7,100-7,200 users per arm",
+        "Reports roughly 48 weeks",
+        "Suggests at least one way to make the test feasible (bigger effect target, targeting, mechanism metric first)",
+        "Does not suggest a bandit or continuous optimisation as the solution"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Draft and seal the pre-registration for our Practica onboarding test (treatment: state-routed emails per examples/practica/states/states.toml; control: existing drip; primary: paid within 14 days; mechanism: first lesson within 3 days).",
+      "expected_output": "Writes prereg.toml with hypothesis, mechanism, population, allocation, salt, cohort dates, analysis_not_before, primary metric, baseline, minimum worthwhile effect, direction, gates (90% reach, 48h SLA, missing outcomes, SRM, no control contact), policy hashes; seals with holdout.py seal; explains shakedown week and no peeking.",
+      "files": [
+        "examples/practica/states/states.toml"
+      ],
+      "assertions": [
+        "prereg.toml includes a minimum_worthwhile_effect",
+        "Includes a treatment reach gate of 90% and a first-contact SLA",
+        "The plan is sealed with holdout.py seal (a prereg.lock is produced)",
+        "Mentions a shakedown week before counting",
+        "Says not to look at the arm difference before analysis_not_before"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can we just compare users who opened our onboarding emails against users who didn't, instead of running a holdout?",
+      "expected_output": "Explains that comparing contacted/opened vs not is selection (per-protocol fallacy), cites the Typesy example (67.42% vs 47.72% was selection), and recommends a randomised holdout analysed intent-to-treat.",
+      "files": [],
+      "assertions": [
+        "Explains the comparison is biased by selection",
+        "Recommends a randomised holdout with intent-to-treat analysis"
+      ]
+    }
+  ]
+}

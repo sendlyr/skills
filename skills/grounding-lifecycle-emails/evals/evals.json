@@ -1,0 +1,49 @@
+{
+  "skill_name": "grounding-lifecycle-emails",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check these AI-written onboarding drafts before I review them: examples/practica/emails/emails.json with rules examples/practica/emails/claim-rules.toml.",
+      "expected_output": "Runs claim_check.py; reports e01 and e02 clean, e09 warnings only, and blocks e03 (false completion), e04 (unapproved CTA), e05 (guaranteed / fluent in 7 days), e06 (exact minutes), e07 (greeting guessed from a username), e08 (internal plan name and missing unsubscribe); reminds that a human still approves every email.",
+      "files": [
+        "examples/practica/emails/emails.json",
+        "examples/practica/emails/claim-rules.toml"
+      ],
+      "assertions": [
+        "e01 and e02 are reported clean",
+        "e03, e04, e05, e06, e07 and e08 are blocked with the right reasons",
+        "e09 has warnings only",
+        "The answer states that a human must still approve the emails"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write the email for users in GOAL_SET_NO_LESSON for Practica (they set a goal but haven't done a lesson). Approved CTA: 'Start your first lesson' -> https://app.practica.example/lesson/first. Some users have no verified first name.",
+      "expected_output": "Runs the objective step then the copy step, producing structured JSON (no HTML) with one CTA from the allowlist, a fallback greeting when no verified name, no completion claims, no exact metrics, an unsubscribe placeholder, then runs claim_check.py and reports it clean.",
+      "files": [
+        "examples/practica/emails/claim-rules.toml"
+      ],
+      "assertions": [
+        "Output is structured fields (subject, intro, body, cta_label, cta_url, footer), not HTML",
+        "The CTA label and URL exactly match the allowlist",
+        "The copy does not claim the user completed a lesson",
+        "It handles missing names with 'Hi there,'",
+        "The draft passes claim_check.py with no blockers"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check this group template and its renders for leaks: examples/practica/emails/template.json (rules: examples/practica/emails/claim-rules.toml).",
+      "expected_output": "Flags the unknown {{ streak_days }} placeholder, the literal customer name Ivy in the template, and Ivy's name appearing in Jon's rendered email.",
+      "files": [
+        "examples/practica/emails/template.json",
+        "examples/practica/emails/claim-rules.toml"
+      ],
+      "assertions": [
+        "Flags the unknown placeholder streak_days",
+        "Flags the literal name in the template",
+        "Flags another user's name appearing in a render"
+      ]
+    }
+  ]
+}

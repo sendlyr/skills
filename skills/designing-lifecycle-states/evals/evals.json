@@ -1,0 +1,44 @@
+{
+  "skill_name": "designing-lifecycle-states",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit our current onboarding state model (examples/practica/states/states.flawed.toml) against last quarter's facts (examples/practica/observational/facts.csv, outcome column 'converted'). What's wrong with it?",
+      "expected_output": "Runs state_audit.py and reports: NEW is unreachable because AT_RISK captures its users first; STREAKING and LEARNING share an ask and do not differ on conversion; STREAKING is the success state but still sends; AT_RISK is ordered before setup states. Recommends a 3-state model with a no-send success state.",
+      "files": [
+        "examples/practica/states/states.flawed.toml",
+        "examples/practica/observational/facts.csv"
+      ],
+      "assertions": [
+        "NEW is identified as unreachable and AT_RISK is named as what captures its users",
+        "STREAKING and LEARNING are identified as duplicate asks",
+        "STREAKING sending despite being the success state is flagged",
+        "The fix proposes a success state with no sends",
+        "The answer recommends fewer states, roughly one per reader action"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Design lifecycle states for our 7-day trial. Our indicator is 'set a learning goal' and the supporting signal is 'first lesson done'. Emails go to the learner.",
+      "expected_output": "Produces a states.toml with UNOBSERVABLE handling, exclusions, ACTIVE (success, no-send), GOAL_SET_NO_LESSON (ask: first lesson) and NO_GOAL (ask: pick a goal) in ladder order, each sending state with exactly one ask by the learner.",
+      "files": [],
+      "assertions": [
+        "The success state has send = false",
+        "Each sending state has exactly one ask that the learner can perform",
+        "States are ordered with prerequisites before later steps",
+        "Unobservable or missing data is handled outside the sending states"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Should we split our onboarding emails into separate monthly-plan and yearly-plan journeys? 75% of trials pick yearly.",
+      "expected_output": "Advises against separate content: treat plan as a pre-randomisation stratum, share one treatment, randomise within strata and report both, pre-register any suspected interaction; explains the sample-size cost.",
+      "files": [],
+      "assertions": [
+        "Recommends treating plan as a stratum rather than separate states or journeys",
+        "Explains that splitting reduces the sample per arm",
+        "Suggests pre-registering the interaction instead of discovering it afterwards"
+      ]
+    }
+  ]
+}

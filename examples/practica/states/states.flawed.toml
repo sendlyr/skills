@@ -1,0 +1,63 @@
+# The kind of state model teams usually start with. It has five planted problems:
+# 1. AT_RISK is checked before the setup states, so it swallows users who never set a goal
+#    and tells them to "pick up where you left off" (wrong premise).
+# 2. NEW can never match: AT_RISK already captured every user with zero app opens.
+# 3. LEARNING and STREAKING make the same ask.
+# 4. LEARNING and STREAKING do not differ on conversion: lesson depth does not earn a state.
+# 5. STREAKING is the success state but still sends.
+
+[model]
+name = "practica_trial_v1_legacy"
+email_actor = "learner"
+decision_window_days = 7
+
+[[exclusions]]
+name = "EXCLUDED"
+when = "is_test == 1 or cancelled == 1"
+reason = "test_or_cancelled"
+
+[[states]]
+name = "STREAKING"
+when = "lessons_completed >= 3"
+success = true
+send = true
+ask = "Keep your streak going"
+actor = "learner"
+
+[[states]]
+name = "LEARNING"
+when = "lessons_completed >= 1"
+send = true
+ask = "Keep your streak going"
+actor = "learner"
+
+[[states]]
+name = "AT_RISK"
+when = "app_opens_3d <= 1"
+send = true
+ask = "Pick up where you left off"
+actor = "learner"
+
+[[states]]
+name = "NEW"
+when = "goal_set == 0 and app_opens_3d == 0"
+send = true
+ask = "Welcome to Practica"
+actor = "learner"
+
+[[states]]
+name = "GOAL_SET_NO_LESSON"
+when = "goal_set == 1 and lessons_completed == 0"
+send = true
+ask = "Finish your first 5-minute lesson"
+actor = "learner"
+
+[[states]]
+name = "NO_GOAL"
+when = "goal_set == 0"
+send = true
+ask = "Pick your learning goal"
+actor = "learner"
+
+[fallback]
+name = "UNCLASSIFIED"

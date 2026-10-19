@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "about": "Planted truths in the synthetic Practica dataset. Tests and evals assert against this file.",
+  "finding-leading-indicators": {
+    "args": {
+      "outcome_window_days": 14,
+      "decision_window_days": 7,
+      "email_actor": "learner",
+      "as_of": "2026-05-10"
+    },
+    "top_event": "goal_set",
+    "top_threshold": 1,
+    "top_window_days_max": 3,
+    "supporting_event": "lesson_completed",
+    "nothing_vs_something": {
+      "event": "lesson_completed",
+      "threshold_low": 1,
+      "threshold_high": 3,
+      "note": "conversion if hit barely moves from >=1 to >=3"
+    },
+    "must_not_rank_top3": [
+      "billing_page_viewed",
+      "app_opened",
+      "streak_reminder_shown"
+    ],
+    "too_broad": {
+      "event": "app_opened",
+      "threshold": 1,
+      "window_days": 1
+    },
+    "not_actionable_actor": "streak_reminder_shown",
+    "confounded_decoy": "email_opened",
+    "leak_bait": "billing_page_viewed",
+    "immature_accounts_expected": true,
+    "windows_beyond_decision_window_refused": 14
+  },
+  "designing-lifecycle-states": {
+    "good_model": "states/states.toml",
+    "flawed_model": "states/states.flawed.toml",
+    "flawed_findings": {
+      "unreachable_states": [
+        "NEW"
+      ],
+      "duplicate_asks": [
+        [
+          "STREAKING",
+          "LEARNING"
+        ]
+      ],
+      "success_state_sends": [
+        "STREAKING"
+      ],
+      "indistinguishable_pairs": [
+        [
+          "STREAKING",
+          "LEARNING"
+        ]
+      ]
+    },
+    "good_findings": {
+      "success_state_sends": [],
+      "unreachable_states": [],
+      "duplicate_asks": []
+    },
+    "unobservable_expected": true
+  },
+  "designing-holdout-experiments": {
+    "salt": "practica-2026q2",
+    "allocation_treatment": 0.5,
+    "prereg_sealed": "experiment/prereg.toml"
+  },
+  "writing-decision-readouts": {
+    "experiment": {
+      "verdict": "SUPPORTED_AT_TARGET"
+    },
+    "experiment-broken": {
+      "verdict": "INVALID_DELIVERY",
+      "failed_gates_include": [
+        "treatment_reach",
+        "control_contacted"
+      ]
+    },
+    "per_protocol_must_not_appear": true
+  },
+  "designing-state-journeys": {
+    "experiment": {
+      "reach_gate": "pass",
+      "success_state_send_share_max": 0.05,
+      "cap_violations": 0,
+      "spacing_violations": 0,
+      "control_contacted": 0
+    },
+    "experiment-broken": {
+      "reach_gate": "fail",
+      "success_state_send_share_min": 0.4,
+      "cap_violations_min": 1,
+      "spacing_violations_min": 1,
+      "control_contacted_min": 1,
+      "stale_render_hours_p50_min": 1.0
+    }
+  },
+  "grounding-lifecycle-emails": {
+    "clean": [
+      "e01_clean_no_goal",
+      "e02_clean_fallback_greeting"
+    ],
+    "blockers": {
+      "e03_false_completion": [
+        "fact_rule"
+      ],
+      "e04_cta_not_allowed": [
+        "cta"
+      ],
+      "e05_unsupported_claims": [
+        "prohibited"
+      ],
+      "e06_exact_metric": [
+        "pattern"
+      ],
+      "e07_unverified_greeting": [
+        "greeting"
+      ],
+      "e08_internal_name_no_unsubscribe": [
+        "product_name",
+        "required"
+      ]
+    },
+    "warnings_only": {
+      "e09_urgency_warning": [
+        "prohibited"
+      ]
+    },
+    "template_blockers": [
+      "unknown_placeholder",
+      "literal_name_in_template",
+      "cross_user_name"
+    ]
+  },
+  "observational_counts": {
+    "accounts": 5000,
+    "mature_accounts": 4703,
+    "immature_accounts": 297
+  },
+  "experiment_counts": {
+    "treatment": 3955,
+    "control": 4045
+  }
+}

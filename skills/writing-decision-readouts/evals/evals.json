@@ -1,0 +1,53 @@
+{
+  "skill_name": "writing-decision-readouts",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The Practica onboarding experiment has finished. Did it work? Files: examples/practica/experiment/ (prereg.toml, assignments.csv, outcomes.csv, sends.csv). The data was extracted on 2026-07-15.",
+      "expected_output": "Runs readout.py; all gates pass; verdict SUPPORTED_AT_TARGET with arm rates, difference and CI above the 3pp minimum worthwhile effect; mechanism moved too; writes a decision record.",
+      "files": [
+        "examples/practica/experiment/prereg.toml",
+        "examples/practica/experiment/assignments.csv",
+        "examples/practica/experiment/outcomes.csv",
+        "examples/practica/experiment/sends.csv"
+      ],
+      "assertions": [
+        "Verdict is SUPPORTED_AT_TARGET",
+        "Reports the difference with its confidence interval against the 3pp target",
+        "Shows the integrity gates before the result",
+        "Includes a decision record or asks the owner to choose adopt, repeat, revise or stop"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Same experiment but this is the run where we had problems: examples/practica/experiment-broken/ (extracted 2026-07-15). Our PM says treatment still looks a bit better, can we call it a win?",
+      "expected_output": "Runs readout.py; verdict INVALID_DELIVERY because reach is below 90% and control users were contacted; refuses to classify the effect and does not present the arm difference as evidence; recommends auditing sends, repairing delivery and repeating the same hypothesis.",
+      "files": [
+        "examples/practica/experiment-broken/prereg.toml",
+        "examples/practica/experiment-broken/assignments.csv",
+        "examples/practica/experiment-broken/outcomes.csv",
+        "examples/practica/experiment-broken/sends.csv"
+      ],
+      "assertions": [
+        "Verdict is INVALID_DELIVERY",
+        "States that it cannot be called a win",
+        "Names treatment reach below 90% and control contamination",
+        "Does not present a contacted-vs-uncontacted comparison",
+        "Recommends repeating the same hypothesis after fixing delivery"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our test: treatment 69.4% (129/186) vs control 57.7% (56/97) hit the activation behaviour, but conversion was 76.8% (136/177) vs 76.7% (66/86). How should we write this up for the CEO?",
+      "expected_output": "Separates mechanism from outcome: the behaviour moved (about +11.6pp, borderline) but conversion did not (+0.1pp, wide interval); likely ceiling; outcome inconclusive against any sensible minimum effect; asks whether delivery/reach was verified before any verdict; recommends publishing the null with limits.",
+      "files": [],
+      "assertions": [
+        "Says the behaviour moved but conversion did not",
+        "Gives intervals or says the conversion result is inconclusive",
+        "Mentions a ceiling or limited headroom",
+        "Asks about or requires delivery/reach verification before a verdict",
+        "Does not claim conversion lift"
+      ]
+    }
+  ]
+}
