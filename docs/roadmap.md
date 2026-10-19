@@ -22,12 +22,12 @@ The measurement discipline stays the same.
   - customer outcomes: emails, retention, happiness.
 - **Extensions to five of the v1 six:** A/B/n tests, guardrails, channels, deliverability, fatigue (section 2).
 - **Integrations compose with official vendor MCP servers** for definitions and aggregates. Row-level data moves through exports, disk to disk. Scripts stay offline (section 4).
-- **Safety:** read-only by default, enforced by credentials. The agent never sends, launches or deletes, and write proposals wait for a later phase (section 5).
-- **Open source we can adapt:**
+- **Safety:** read-only by default, enforced by credentials. The agent never sends, launches or deletes. Writes come in a later phase, and only as a hashed, expiring plan of at most 20 operations, approved, applied once, read back, with a receipt and a revert plan (section 5).
+- **Open source we can adapt** (actual LICENSE files read, and each file's lineage checked):
   - MIT: marketingskills, PostHog, GrowthBook, Amplitude's MIT repo, accoil, RudderStack;
   - Apache-2.0: Mixpanel, Anthropic's knowledge-work plugins;
   - ideas only: lenny-skills; nothing from repos without a licence (section 6).
-- **Build order:** six phases of small PRs, each ending in a release (section 8). **Five decisions block Phase 1** (section 9).
+- **Build order:** a foundations phase (facts file, macOS CI, offline harness, leak gate), then five feature phases of small PRs, each ending in a release (section 8). **Five decisions block Phase 1** (section 9).
 
 ---
 
@@ -177,6 +177,21 @@ With all of them, v2 has 17 skills: the v1 six plus eleven new ones. It has 16 i
 
 The skills shared by every stage don't fork per stage. A new stage is a new `stages.toml` entry, not a new skill.
 
+### How every skill is written
+
+These rules apply to new skills and to edits of the v1 six.
+
+- **Code computes every number; the skill carries the judgement.** A `SKILL.md` never asks the model to calculate a rate, an interval or a sample size. It says which script to run, how to read the result, and **what never to claim**. Unknown stays unknown and is never shown as zero.
+- **Every threshold has a source label.** There are four kinds:
+  - **lesson** (e.g. the 90% reach gate, lesson 1);
+  - **vendor rule** (e.g. Gmail's 0.3% spam-rate ceiling);
+  - **statistical convention** (e.g. α = 0.05);
+  - **borrowed**.
+
+  Borrowed thresholds are mostly folklore, such as "40% very disappointed" or "3% monthly churn is good". They ship only as a **starting band, labelled with their source**, which the user confirms for their own data. Every threshold is a flag or config value, never a hard-coded rule.
+- **A no-credentials demo.** Each skill runs end to end on Practica and on the vendor replay bundles, in about a minute and with no accounts. The same files are its eval fixtures.
+- **Typesy appears only as a labelled worked example.** No skill has Typesy-specific fields.
+
 ---
 
 ## 3. New data contracts and planted truths
@@ -291,8 +306,11 @@ The analysis scripts then run as they do today. **No script opens a network conn
 
 Each connecting skill also ships:
 
+- **`setup` and `doctor` steps.** `setup` walks the user through connecting the vendor's official server with read-only credentials. `doctor` proves access with **one real read** and prints the exact fix when it fails: the missing scope, the wrong region host, the plan tier. Scripts stay offline, so the agent makes that one MCP read, and the bridge's own `doctor` mode checks the exported file offline.
+- **A capabilities matrix per vendor** (`assets/vendors.toml`): what it can read, through which path, its rate limits, and what it **can't** expose. Examples: Braze's MCP has no user-level sends; SendGrid has no frequency caps or holdouts. The skill never claims to read something that isn't in the matrix. Tests check that every vendor entry has its limits and the date it was checked.
 - **A recommended Claude Code permission file per vendor.** It allows the named read tools, asks on anything else, and denies the known send, launch and delete tools. Claude Code evaluates deny, then ask, then allow, and an allow rule can't override a deny.
 - **One reference file per vendor**: setup, the read-only lever, the export recipe, the status mapping, known traps, and the date the docs were last checked. Vendor docs change, so each file carries that date.
+- **Example MCP configs, never enabled by default.** For Codex, add `.codex-plugin/plugin.json` and an `mcp.json` example with an explicit transport `type`. The plugin itself installs skills only; it doesn't silently add vendor servers.
 
 Where a vendor already ships an official agent plugin, our skill points to it rather than duplicating it. Customer.io's Claude plugin (MIT) is one example. Our skill adds only the contract mapping and the measurement checks.
 
@@ -389,11 +407,23 @@ The model below addresses each one.
 | Tier | What | Examples | Who acts | Guard |
 |---|---|---|---|---|
 | **0. Offline** | Scripts on local files | Every analysis script | Agent | No network, no credentials, aggregates only (as in v1) |
-| **1. Read** | Read-only calls through an official MCP server; export commands that write to disk | List campaigns and caps, read a tracking plan, dry-run a query, count events, export send logs to a file | Agent, once the human has connected the server with read-only credentials | Read-only credentials and roles (5.2), bounded queries, row-level data written to disk only |
-| **2. Propose, then apply on approval** | A **change plan** file (a diff), a human yes for that one change in the moment, apply exactly that change, verify it, log it | Add an event to a tracking plan (on a branch, where the vendor supports it), create a *draft* template from approved email JSON, create a flag at 0% or an inactive experiment, define a segment | The human approves each change. The agent applies it | One change per approval. Never while a sealed test is running, because that's a protocol deviation. A log file records counts only, no IDs. **Not in 0.x** *(D8)* |
+| **1. Read** | Read-only calls through an official MCP server; export commands that write to disk | List campaigns and caps, read a tracking plan, dry-run a query, count events, export send logs to a file | Agent, once the human has connected the server with read-only credentials | Read-only credentials and roles (5.3), bounded queries, row-level data written to disk only |
+| **2. Propose, then apply on approval** | A **change plan** file (a diff), a human yes for that one change in the moment, apply exactly that change, verify it, log it | Add an event to a tracking plan (on a branch, where the vendor supports it), create a *draft* template from approved email JSON, create a flag at 0% or an inactive experiment, define a segment | The human approves the plan's hash. The agent applies it once | The approval protocol in 5.2. Never while a sealed test is running, because that's a protocol deviation. **Not in 0.x** *(D8)* |
 | **3. Never by the agent** | Anything that reaches customers, moves money or destroys data | Send, schedule, launch, activate or resume a campaign or flow; change a live audience or a running test's allocation; declare a winner; refunds, cancellations, charges; delete or merge profiles; change suppression or unsubscribe lists; create webhooks or standing exports; create or rotate credentials | A person, in the vendor's own UI | The skills never instruct it. The permission files deny the known tools *(D7)* |
 
-### 5.2 Read-only is enforced by credentials, not by trust
+### 5.2 How a Tier 2 change is approved
+
+Writes are never direct. This protocol was learned by a team that open-sourced an ads MCP server and skills. A small stdlib script, `change_plan.py`, enforces its mechanics offline, so the rules are code and not memory:
+
+1. **Plan.** The agent writes a change plan: the vendor, each operation, the current value read back, the new value, and how to revert it. **At most 20 operations.** Anything larger needs a separate review step.
+2. **Hash.** The script hashes the plan and shows the human the plan with its hash.
+3. **Approve.** The human's explicit "yes" is pinned to that hash. A changed plan needs a new yes. Silence, an earlier yes, or a refusal in chat never counts. Plans expire after **30 minutes**.
+4. **Apply once.** The agent applies exactly the approved operations, once.
+5. **Read back.** The agent re-reads each changed object, and the script compares the values with the plan.
+6. **Receipt.** The script writes a receipt: the hash, the time, the operations, the read-back result and the revert plan. It holds no IDs beyond the vendor's object IDs, and no customer data.
+7. **Revert.** Every receipt carries a ready revert plan, which goes through the same protocol.
+
+### 5.3 Read-only is enforced by credentials, not by trust
 
 URL flags and tool annotations are hints. Read-only has to be enforced where the vendor's own boundary is. Each case from the research shows why:
 
@@ -414,23 +444,25 @@ Two traps get their own warning:
 - **Read-only keys sometimes can't export.** A Customer.io read-only token allows GET only, and its delivery export is a POST. Iterable's read-only key excludes the export endpoints. The fix is **never to widen the agent's key.** The human runs the export, or approves the exact export command.
 - **Some "confirmations" are filled in by the agent itself.** Statsig's `confirmation` field is one. Only gates a person clicks count as approval: GrowthBook's "Require confirmation", Stripe's confirmation link, Avo's re-auth and human merge, and the agent client's own permission prompt.
 
-### 5.3 Personal data stays on disk
+### 5.4 Personal data stays on disk
 
 - Row-level data moves **disk to disk**: from the vendor's CLI or export into a file, then through a bridge script into a contract file. The agent reads only the aggregate `report.md` and `result.json`.
 - Bridges pseudonymise IDs with a salt from the user's environment. They refuse to write output that still holds email addresses, phone numbers, IPs or free-text names.
+- **The redactor is tested by round-trip.** Every stored payload must survive it unchanged, apart from the intended fields. Another team's redactor silently erased every field whose name ended in `_key` or `_token`. Our contract has `message_key`, so a test pins it.
 - Warehouse access should go through a **pseudonymised view** in a separate read-only schema, not the raw tables. The SQL templates create that view as a human-run step.
 - Reports never print user IDs. That rule is unchanged, and the tests extend to every new script.
 - Exports carry a retention note: delete them when the analysis is done.
 
-### 5.4 Credentials stay in the user's environment
+### 5.5 Credentials stay in the user's environment
 
-- They live only in the MCP client's configuration, the OS keychain or environment variables. OAuth is preferred where the vendor offers it.
+- **Users bring their own credentials.** They live in the OS keychain (for example through `keyring`), the MCP client's own secure store, or the vendor CLI's login. OAuth is preferred where the vendor offers it.
+- **A secret never goes in a URL, query string or install deeplink.** Non-secret flags such as Klaviyo's `?read-only=true` are fine. If the plugin ever takes settings through `userConfig`, every secret field is marked `sensitive: true`.
 - They are never written to `stages.toml`, a report, a log, an example file or the repo. They are never passed as script arguments, because arguments leak into shell history and process lists.
 - Use a separate, least-privilege key for the agent, with an expiry where the vendor supports one.
 - **Stripe:** from December 2026 its MCP stops accepting full-access keys and restricted keys without the Agent tag (OAuth still works). The Stripe reference will say so.
 - A test scans the repo for key-shaped strings, and `.gitignore` covers `.env*`.
 
-### 5.5 Customer data is data, never instructions
+### 5.6 Customer data is data, never instructions
 
 These are all untrusted input:
 
@@ -442,21 +474,64 @@ These are all untrusted input:
 
 Skills say so in plain words. Free text is summarised into themes for `forming-lifecycle-hypotheses` and never acted on. During this research, one vendor docs page was reported to contain text telling AI assistants to post feedback to an external URL. It was not followed.
 
-### 5.6 Tests that hold the line
+### 5.7 Tests that hold the line
 
-New repo checks, added in the phase that needs them:
+Safety rules only hold if CI checks them. These checks come in the Phase 1 foundations PRs (section 8) and apply to every later PR:
 
-- no network imports (`socket`, `urllib`, `http.client` and similar) in any skill script;
-- no credential-shaped strings anywhere in the repo;
-- every permission file denies its vendor's Tier 3 tools;
-- every skill with `adapted-from` has a `NOTICE.md`;
-- every example file is under 256 KiB.
+- **Offline by construction.**
+  - A static check: no network imports (`socket`, `urllib`, `http.client`, `ssl` and similar) and no third-party imports in any skill script.
+  - At run time, the test harness runs every script with sockets disabled, through a wrapper that patches `socket` before `runpy` runs the script. A script that tries to connect fails its test.
+- **Replay bundles that copy real API quirks.** Synthetic vendor exports must reproduce what the real APIs do:
+  - fields left out when they are zero or default;
+  - nulls, and numbers sent as strings;
+  - epoch and ISO timestamps;
+  - gzip, zip and JSONL files;
+  - duplicates from at-least-once webhooks, and out-of-order rows.
+
+  Each quirk cites the vendor doc it came from. Another team's fake passed tests while live code crashed, because the real API left out zero fields.
+- **Leak gate.** CI must find zero hits for:
+  - client or prospect names;
+  - real IDs;
+  - `/Users/<name>` and `/home/<name>` paths;
+  - token-shaped strings.
+
+  The name denylist is stored as hashes, so the names never appear in the repo *(D16)*. Typesy and eReflect are allowed as the labelled worked example.
+- **Docs match reality.**
+  - Every script, reference, asset and MCP tool name that a `SKILL.md` mentions must exist. Script paths are already checked. Tool names are checked against the vendor capability matrix.
+  - Every skill stays under its size cap: `SKILL.md` under 500 lines, and every file under 256 KiB.
+  - Every vendor entry in `vendors.toml` encodes its rate limits, and the bridges and export recipes respect them.
+- **Permissions and licences.**
+  - Every permission file denies its vendor's Tier 3 tools.
+  - Every skill with `adapted-from` has a `NOTICE.md`.
+- **Two operating systems.** CI runs on Ubuntu **and macOS**, on Python 3.11 and 3.13. The other team's Linux-only failures came from `/bin` resolving to `/usr/bin`, coarse file modification times, and tests that wrote to `/private/tmp`.
+- **One facts file.** `facts.json` holds the install commands, skill, script and test counts, and network behaviour. A test fails if it drifts from the repo, so the website can copy it instead of hard-coding "136 tests" or "no network calls".
 
 ---
 
 ## 6. What we adapt from open source, and under what licence
 
-Licences were checked on GitHub on 2026-10-20 at the repos' current HEAD. "Adapt" means taking a structure or idea and rewriting it in our voice, with credit. Text is copied only where the licence allows, with the notice kept. The full research notes, with a URL for every claim, are summarised here (see D15).
+**How licences were checked.** On 2026-10-20 the **actual LICENSE file** of every source in the table was read, not GitHub's label. Each is MIT, ISC or Apache-2.0 as listed. PostHog's monorepo is MIT except its `ee/` folder. Anthropic's knowledge-work plugins have no per-plugin LICENSE file, so they fall under the repo-root Apache-2.0.
+
+"Adapt" means taking a structure or idea and **rewriting it in our own voice, bound to our scripts**, with credit. Text is copied only where the licence allows, with the notice kept. The full research notes, with a URL for every claim, are summarised here (see D15).
+
+**Learn-only, never copied:**
+- anything under Commons Clause (for example, Customer.io's CLI is Apache-2.0 + Commons Clause);
+- anything under a non-commercial or "no AI products" licence;
+- any repo with no licence;
+- any file whose own header says it came from such a source.
+
+**The provenance trap.** A repo's licence covers only what its authors could license. So we check **each file's own lineage note**, not just the repo licence. In marketingskills at commit `e85f3cb`:
+
+| File or skill | Lineage note | Our treatment |
+|---|---|---|
+| `emails` (SKILL.md and its three references) | None | Adaptable under MIT |
+| `copywriting`, `copy-editing` | Parts adapted from Profound's [skills-marketing-library](https://github.com/retieedra-profound/skills-marketing-library) (MIT, LICENSE read) | Adaptable. Credit both repos |
+| `copywriting/references/natural-transitions.md` | Adapted from the University of Manchester Academic Phrasebank | **Learn-only** (not openly licensed) |
+| `conversion-tracking` snippets | Adapted from [ConversionKit](https://github.com/ConversionKit/conversion-tracking) (MIT, LICENSE read) | Adaptable. Credit both repos |
+| `pricing` teardown rubric | Written by the authors themselves, with the framing credited to Kyle Poyar's teardown | Adaptable if needed. Keep the credit to Poyar |
+| `ads` references | Rewritten from a playbook under MIT + Commons Clause | **Learn-only**. We don't use them anyway |
+
+Popularity isn't quality. skills.sh install counts can be inflated, so they never decide what we adapt.
 
 | Source | Licence | Take | Leave | Lands in |
 |---|---|---|---|---|
@@ -483,7 +558,7 @@ Licences were checked on GitHub on 2026-10-20 at the repos' current HEAD. "Adapt
 
 The Agent Skills [specification](https://agentskills.io/specification) has `license` and a free-form `metadata` map, but no attribution field. So, for every adapted skill:
 
-1. **A `NOTICE.md` inside the skill folder**, because folders install alone. It holds the upstream copyright line, the full licence text, the upstream URL and commit, and, for Apache-2.0, a statement of what we changed.
+1. **A `NOTICE.md` inside the skill folder**, because folders install alone. It holds the source, the copyright line, the full licence text, the upstream URL and commit, and the **credit chain**: the upstream's own upstreams, e.g. Profound or ConversionKit. For Apache-2.0 it also states what we changed.
 2. **Frontmatter** keeps `license: MIT` and adds metadata keys, e.g. `adapted-from: "coreyhaines31/marketingskills@<sha>:skills/emails"` and `upstream-license: "MIT"`. If Apache-2.0 text is included, the field becomes `license: MIT AND Apache-2.0` with a pointer to `NOTICE.md`.
 3. **A root `THIRD_PARTY_NOTICES.md`** listing every adapted source.
 4. **`validate_skills.py` checks** that any skill with `adapted-from` has a `NOTICE.md`. Today it requires `license` to be exactly `MIT`, so it will also accept `MIT AND Apache-2.0` when a `NOTICE.md` is present.
@@ -531,10 +606,17 @@ No PR merges without the founder's approval. Each phase ends in a minor release.
 ### Phase 0: this PR
 `docs/roadmap.md` only. Decisions in section 9.
 
+### Phase 1a: foundations (repo hardening, no new skills)
+| PR | Work |
+|---|---|
+| F1 | `facts.json` plus a drift test (install commands, counts, network behaviour) for the website to copy. **Opened alongside this roadmap** |
+| F2 | CI on Ubuntu and macOS. The offline test harness (sockets disabled), the static import checks, the leak gate (D16) and the size caps |
+| F3 | If D14 says yes: shrink the existing Practica files under 256 KiB, with every planted truth and test unchanged |
+| F4 | `.codex-plugin/plugin.json`; validator support for `adapted-from` and `NOTICE.md`; a root `THIRD_PARTY_NOTICES.md` |
+
 ### Phase 1: the adoption map (offline, the organising idea) → 0.2.0
 | PR | Work |
 |---|---|
-| 0 | If D14 says yes: shrink the existing Practica files under 256 KiB, with every planted truth and test unchanged |
 | 1 | `stages.toml` and wide `accounts.csv` contracts; Practica `lifecycle/` dataset; `mapping-adoption-stages` + `adoption_map.py` |
 | 2 | `finding-leading-indicators`: `--stages/--stage`, time-to-adoption-point table |
 | 3 | Refactor: move the scoring core of `score_signals.py` into `scripts/shared/signals.py` (no behaviour change; every existing test unchanged) |
@@ -568,7 +650,7 @@ No PR merges without the founder's approval. Each phase ends in a minor release.
 ### Phase 5: write proposals, then 1.0
 | PR | Work |
 |---|---|
-| 18 | Tier 2 change plans (section 5) in the connecting skills, only after read-only use has been proven |
+| 18 | Tier 2 change plans: `change_plan.py` (plan, hash, expiry, the 20-operation cap, read-back, receipt, revert) and its use in the connecting skills, only after read-only use has been proven |
 | 19 | Method v2, README, CHANGELOG, plugin version; a hand-over note for the website session |
 
 Rough size: about 2–3 agent-days per phase with review, longer for Phase 3. These are estimates, not commitments. Phases 2 and 3 can swap if the founder wants testing before integrations *(Decision D6)*.
@@ -587,7 +669,7 @@ Each decision has a recommendation. The first five block Phase 1. The rest can w
 | D2 | **v2 scope** | All eleven new skills, built in phase order. Each phase ships on its own, so the plan can stop after any phase | Phases 1–3 only for now; defer retention, happiness and emails |
 | D3 | **Segments as their own skill** | Yes: `splitting-customer-segments` is separate from `mapping-adoption-stages`. It answers a different question ("do segments need different adoption points?") and matches the process: split, then find the tipping point | One combined skill, which means fewer skills but a broader trigger |
 | D6 | **Build order** | Adoption map first (Phase 1), then connect and track, then test and monitor | Integrations first, because they remove tab-switching soonest, while the analysis waits a phase |
-| D14 | **Example files over 256 KiB** (six today) | One small PR before Phase 1: shrink the Practica files under the limit and keep every planted truth, proved by the same tests. Confirm the directory rule first | Leave them, and accept the directory hold |
+| D14 | **Example files over 256 KiB** (six today) | PR F3, before Phase 1: shrink the Practica files under the limit and keep every planted truth, proved by the same tests. Confirm the directory rule first | Leave them, and accept the directory hold |
 
 ### Before Phases 2–5
 
@@ -603,6 +685,7 @@ Each decision has a recommendation. The first five block Phase 1. The rest can w
 | D12 | **Dashboard delivery** | A static `dashboard.html` the team can open or host privately. No hosted service | Add templates for GitHub Pages or a BI tool export |
 | D13 | **An MCP server that wraps our scripts** (from the v1 plan's "later" list) | After 1.0 | Within v2, for MCP-only agents |
 | D15 | **Research notes** | Commit condensed versions under `docs/research/`, so contributors can check vendor facts and each one carries the date it was checked | Keep them out of the repo, since vendor facts go stale fast |
+| D16 | **Leak-gate name list** | Store client and prospect names as salted hashes in the repo. CI hashes each word it scans and compares, so the names never appear in plain text | Keep the list in a CI secret (harder for contributors to run locally) |
 
 ---
 
@@ -628,6 +711,7 @@ Vendor and licence facts were checked on 2026-10-20. Links are inline in section
 - **Repo:** [`method.md`](method.md), [`lessons.md`](lessons.md), [`data-contracts.md`](data-contracts.md), [`case-study-typesy.md`](case-study-typesy.md).
 - **Protocol and client controls:** [MCP specification, tools](https://modelcontextprotocol.io/specification/2025-06-18/server/tools); [MCP security best practices](https://modelcontextprotocol.io/specification/draft/basic/security_best_practices); [Claude Code permissions](https://code.claude.com/docs/en/permissions); [Agent Skills specification](https://agentskills.io/specification).
 - **Deliverability:** [Gmail sender guidelines](https://support.google.com/a/answer/81126) (spam rate below 0.30%, aim for below 0.10%; one-click unsubscribe; SPF, DKIM and DMARC); [Yahoo sender best practices](https://senders.yahooinc.com/best-practices/) (complaints below 0.3%; honour unsubscribes within 2 days).
+- **Lessons from another team** that open-sourced an ads MCP server and skills: the write-approval protocol, the testing rules and the provenance trap (shared through the project overview, 2026-10-20).
 - **Postgres MCP vulnerability:** [Datadog Security Labs](https://securitylabs.datadoghq.com/articles/mcp-vulnerability-case-study-SQL-injection-in-the-postgresql-mcp-server/).
 - **Open-source skills:** every repo linked in section 6. Licences were confirmed with the GitHub API: marketingskills MIT; lenny-skills MIT (content reserved in the README); GrowthBook skills MIT; Statsig ISC; Mixpanel Apache-2.0; knowledge-work-plugins Apache-2.0; Amplitude mcp-marketplace MIT; Amplitude builder-skills none; PostHog/skills MIT; accoil MIT; RudderStack MIT.
 - **Full research notes**, with a URL beside every claim and the open UNVERIFIED items, are held outside the repo for now (open-source skills, email platforms, and analytics, warehouses, billing and feedback). They can be committed under `docs/research/` *(D15)*.
